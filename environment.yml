@@ -12,3 +12,7 @@ dependencies:
   - scikit-learn
   - requests
   - geopandas
+  - pyarrow
+  - pip
+  - pip:
+      - pysus>=2.11
