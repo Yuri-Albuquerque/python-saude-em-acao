@@ -7,3 +7,5 @@ plotly>=5.22
 scikit-learn>=1.5
 requests>=2.32
 geopandas>=1.0
+pysus>=2.11
+pyarrow>=16
