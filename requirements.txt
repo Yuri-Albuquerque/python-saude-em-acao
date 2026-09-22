@@ -1,0 +1,9 @@
+jupyterlab>=4.2
+numpy>=1.26
+pandas>=2.2
+matplotlib>=3.8
+seaborn>=0.13
+plotly>=5.22
+scikit-learn>=1.5
+requests>=2.32
+geopandas>=1.0
