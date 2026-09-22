@@ -31,18 +31,28 @@ def municipios_ibge():
     m["codigo_sinan"]=m.codigo_ibge.str[:6]
     return m
 
-def baixar(ano, origem):
+def obter(ano, origem, download=True):
+    kwargs={"download":False} if not download else {"as_dataframe":True}
     if origem=="saude":
-        return pysus.saude.arboviroses(disease="dengue",year=ano,as_dataframe=True)
-    return pysus.ftp.sinan(disease="deng",year=ano,as_dataframe=True)
+        return pysus.saude.arboviroses(disease="dengue",year=ano,**kwargs)
+    return pysus.ftp.sinan(disease="deng",year=ano,**kwargs)
+
+def obter_com_fallback(ano, origem, download=True):
+    if origem!="auto":
+        return obter(ano,origem,download), origem
+    try:
+        return obter(ano,"saude",download), "saude"
+    except Exception as erro:
+        print(f"OpenDataSUS indisponível ({type(erro).__name__}); tentando catálogo FTP...")
+        return obter(ano,"ftp",download), "ftp"
 
 def main():
-    p=argparse.ArgumentParser(); p.add_argument("--ano",type=int,required=True); p.add_argument("--origem",choices=["saude","ftp"],default="saude"); p.add_argument("--listar",action="store_true")
+    p=argparse.ArgumentParser(); p.add_argument("--ano",type=int,required=True); p.add_argument("--origem",choices=["auto","saude","ftp"],default="auto"); p.add_argument("--listar",action="store_true")
     a=p.parse_args()
     if a.listar:
-        bag=(pysus.saude.arboviroses(disease="dengue",year=a.ano,download=False) if a.origem=="saude" else pysus.ftp.sinan(disease="deng",year=a.ano,download=False))
-        print(bag); return
-    df=baixar(a.ano,a.origem)
+        bag, origem_usada=obter_com_fallback(a.ano,a.origem,download=False)
+        print(f"Origem: {origem_usada}"); print(bag); return
+    df, origem_usada=obter_com_fallback(a.ano,a.origem,download=True)
     col_mun=primeira_coluna(df,["ID_MN_RESI","CO_MUN_RES","ID_MUNICIP"])
     col_data=primeira_coluna(df,["DT_SIN_PRI","DT_NOTIFIC"])
     cod=df[col_mun].astype("string").str.replace(r"\.0$","",regex=True).str.zfill(6).str[:6]
@@ -55,7 +65,7 @@ def main():
     semanal=semanal[["codigo_ibge","municipio","semana","casos"]].sort_values(["municipio","semana"])
     OUT.mkdir(parents=True,exist_ok=True)
     semanal.to_csv(OUT/"dengue_semanal_goias.csv",index=False)
-    meta={"fonte":"SINAN/DATASUS via PySUS","origem_pysus":a.origem,"ano":a.ano,"acesso_utc":datetime.now(timezone.utc).isoformat(),"linhas_originais":len(df),"notificacoes_goias_validas":len(base),"municipios":int(semanal.municipio.nunique()),"coluna_municipio":col_mun,"coluna_data":col_data}
+    meta={"fonte":"SINAN/DATASUS via PySUS","origem_pysus":origem_usada,"ano":a.ano,"acesso_utc":datetime.now(timezone.utc).isoformat(),"linhas_originais":len(df),"notificacoes_goias_validas":len(base),"municipios":int(semanal.municipio.nunique()),"coluna_municipio":col_mun,"coluna_data":col_data}
     (OUT/"metadados_sinan.json").write_text(json.dumps(meta,ensure_ascii=False,indent=2),encoding="utf-8")
     print(semanal.head()); print(json.dumps(meta,ensure_ascii=False,indent=2))
 if __name__=="__main__": main()
