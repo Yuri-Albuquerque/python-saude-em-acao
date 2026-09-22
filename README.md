@@ -40,17 +40,17 @@ A oficina permanece funcional offline com a base demo. Para preparar dados ofici
 
 ```bash
 # conferir disponibilidade sem baixar
-python scripts/baixar_sinan_dengue.py --ano 2024 --origem saude --listar
+python scripts/baixar_sinan_dengue.py --ano 2024 --origem auto --listar
 
 # baixar notificações e gerar série semanal municipal de Goiás
-python scripts/baixar_sinan_dengue.py --ano 2024 --origem saude
+python scripts/baixar_sinan_dengue.py --ano 2024 --origem auto
 
 # obter denominadores populacionais e preparar cadastro municipal
 python scripts/baixar_ibge_populacao.py --periodo 2024
 python scripts/preparar_municipios.py
 ```
 
-Se a origem OpenDataSUS não contiver o ano desejado, use `--origem ftp`. Consulte `FONTES_E_METODOLOGIA.md` e `CHECKLIST_DADOS.md` antes de interpretar os resultados.
+O modo `auto` tenta OpenDataSUS e recorre ao catálogo FTP quando necessário; também é possível fixar `--origem saude` ou `--origem ftp`. Consulte `FONTES_E_METODOLOGIA.md` e `CHECKLIST_DADOS.md` antes de interpretar os resultados.
 
 ## Estrutura
 
