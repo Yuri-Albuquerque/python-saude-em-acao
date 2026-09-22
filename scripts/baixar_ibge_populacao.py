@@ -13,7 +13,8 @@ series=payload[0]["resultados"][0]["series"]
 rows=[]
 for s in series:
     valor=next(iter(s["serie"].values()))
-    rows.append({"municipio":s["localidade"]["nome"],"codigo_ibge":str(s["localidade"]["id"]),"populacao":pd.to_numeric(valor,errors="coerce")})
+    nome=s["localidade"]["nome"].removesuffix(" - GO").strip()
+    rows.append({"municipio":nome,"codigo_ibge":str(s["localidade"]["id"]),"populacao":pd.to_numeric(valor,errors="coerce")})
 out=ROOT/"data"/"raw"; out.mkdir(parents=True,exist_ok=True)
 df=pd.DataFrame(rows).dropna(subset=["populacao"]); df["populacao"]=df.populacao.astype("int64")
 df.to_csv(out/"populacao_goias_ibge.csv",index=False)
