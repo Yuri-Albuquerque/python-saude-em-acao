@@ -13,6 +13,7 @@ dependencies:
   - requests
   - geopandas
   - pyarrow
+  - jinja2
   - pip
   - pip:
       - pysus>=2.11
