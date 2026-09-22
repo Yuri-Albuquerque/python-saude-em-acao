@@ -1,6 +1,15 @@
 # Dados
 
-- `demo/`: gerado localmente por `scripts/gerar_dados_demo.py`. É **sintético**, agregado e serve apenas à oficina.
-- `raw/`: reservado aos arquivos oficiais; não é versionado.
+| Pasta | Conteúdo | Versionamento |
+|---|---|---|
+| `demo/` | base sintética gerada por `gerar_dados_demo.py` | não necessária; reproduzível |
+| `raw/` | arquivos obtidos das fontes oficiais | não versionada |
+| `processed/` | agregados municipais preparados para os notebooks | somente após validação |
 
-A separação evita confundir demonstrações didáticas com estatísticas oficiais. Para análises reais, substitua a base demo por extrações documentadas do SINAN/DATASUS e IBGE, registre a data de acesso e preserve o dicionário de variáveis.
+## Produtos esperados
+
+- `processed/dengue_semanal_goias.csv`: `codigo_ibge`, `municipio`, `semana`, `casos`;
+- `processed/municipios_goias.csv`: população e, quando disponíveis, coordenadas e indicadores socioeconômicos;
+- `processed/metadados_sinan.json`: procedência e parâmetros da extração.
+
+Nunca misture silenciosamente colunas sintéticas e oficiais. O carregador informa qual fonte foi escolhida. Consulte `FONTES_E_METODOLOGIA.md`.
