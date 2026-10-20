@@ -1,17 +1,21 @@
-"""Resolve a fonte disponível sem confundir dados oficiais e demonstrativos."""
+"""Resolve os arquivos oficiais agregados exigidos pelos notebooks.
+
+O projeto não usa dados sintéticos: os notebooks exigem as bases oficiais em
+data/processed/. Execute os scripts de download antes de abrir os notebooks.
+"""
 from pathlib import Path
 
 ROOT=Path(__file__).resolve().parents[1]
 
-def caminhos(preferir_oficial: bool=True):
+def caminhos():
     oficial=ROOT/"data"/"processed"
-    demo=ROOT/"data"/"demo"
-    casos_oficial=oficial/"dengue_semanal_goias.csv"
-    municipios_oficial=oficial/"municipios_goias.csv"
-    if preferir_oficial and casos_oficial.exists() and municipios_oficial.exists():
-        return casos_oficial, municipios_oficial, "SINAN/DATASUS + IBGE (dados oficiais agregados)"
-    casos_demo=demo/"dengue_semanal_demo.csv"
-    municipios_demo=demo/"municipios_demo.csv"
-    if casos_demo.exists() and municipios_demo.exists():
-        return casos_demo, municipios_demo, "base sintética de demonstração"
-    raise FileNotFoundError("Nenhuma base preparada. Execute gerar_dados_demo.py ou baixar_sinan_dengue.py e baixar_ibge_populacao.py.")
+    casos=oficial/"dengue_semanal_goias.csv"
+    municipios=oficial/"municipios_goias.csv"
+    if casos.exists() and municipios.exists():
+        return casos, municipios, "SINAN/DATASUS + IBGE (dados oficiais agregados)"
+    raise FileNotFoundError(
+        "Bases oficiais ausentes em data/processed/. Execute nesta ordem:\n"
+        "  python scripts/baixar_sinan_dengue.py --ano 2024 --origem ftp\n"
+        "  python scripts/baixar_ibge_populacao.py --periodo 2024\n"
+        "  python scripts/preparar_municipios.py\n"
+        "  python scripts/baixar_ibge_renda.py")

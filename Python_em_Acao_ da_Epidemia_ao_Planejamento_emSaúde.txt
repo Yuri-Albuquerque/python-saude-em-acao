@@ -1,0 +1,89 @@
+V SEMANA ACADÊMICA DE SAÚDE E DESENVOLVIMENTO • UEG ITUMBIARA
+Python em Ação: Da Epidemia ao Planejamento em Saúde
+Uma investigação visual com dados de dengue, população e renda.
+
+O CENÁRIO GOIANO
+O Desafio Territorial
+•
+246 Municípios: Diversidade demográfica e econômica extrema.
+•
+Sistemas Isolados: Dados assistenciais e de renda fragmentados.
+•
+Recursos Finitos: Necessidade urgente de alocação cirúrgica.
+•
+340.111 km2: Maior que Finlândia, Italia, UK e aproximadamente o tamanho da Alemanha .
+
+PARTE 01
+Python na Economia e Saúde
+
+Por que programar na gestão?
+Escala
+Milhões de registros processados em segundos.
+Automação
+Fim do trabalho repetitivo em planilhas manuais.
+Precisão
+Redução drástica de falhas humanas na auditoria.
+
+A Intersecção de Dados
+Base IBGE
+DATASUS / SINAN
+•
+Renda per capita municipal.
+•
+Infraestrutura de saneamento básico.
+•
+Densidade demográfica por setor.
+•
+Notificações semanais de Dengue.
+•
+Taxas de internação hospitalar.
+•
+Perfil socioeconômico dos pacientes.
+
+PARTE 02
+Planejamento Data-Driven
+
+O Custo da Vulnerabilidade
+3x
+Maior incidência viral em áreas com baixo índice de saneamento.
+40%
+Redução potencial de gastos estaduais com alocação preditiva.
+Fontes: 
+Associação Brasileira de Engenharia Sanitária e Ambiental (ABES). Dados sobre impacto de investimentos em saneamento na redução de arboviroses (2023).
+HELLER, L. et al. Dengue: o papel do saneamento na propagação de arboviroses. Cadernos de Saúde Pública / Organização Pan-Americana da Saúde (OPAS).
+Correlação entre saneamento básico e vulnerabilidade à pandemia de covid-19 no Brasil.
+Universidade de Brasília (UnB) / The Lancet Regional Health (2024). Estudo sobre eficiência econômica e redução de gastos hospitalares através de intervenções preventivas contra a dengue. https://www.thelancet.com/journals/lanam/article/PIIS2667-193X(24)00110-8/fulltext#%20
+
+DECISÃO INTEGRADA
+Gestão Baseada em Evidências
+A união de matrizes econômicas e clínicas direciona recursos públicos para focos reais de vulnerabilidade antes do colapso hospitalar.
+
+PARTE 03
+Prevenção contra Surtos de Dengue
+
+Antecipando o Risco
+•
+Monitoramento Contínuo: Scripts rodam análises semanais do DATASUS.
+•
+Detecção de Padrões: Visualização do crescimento anormal de notificações.
+•
+Gatilhos de Ação: Alertas disparados ao romper limites históricos.
+
+Semanas Epidemiológicas vs Casos
+Evolução de notificações simulada com Pandas e Matplotlib.
+SE 01
+Gatilho Epidêmico Acionado
+SE 09
+
+O Pipeline da Decisão em Saúde
+1. Extração
+Scripts baixam a base bruta do SINAN e IBGE.
+2. Cruzamento
+Modelagem geográfica e mapeamento de renda.
+3. Alerta
+Isolamento das cidades em estágio pré-epidêmico.
+4. Ação
+Envio de Fumacê, agentes e expansão de leitos.
+
+Muito Obrigado.
+Prontos para programar o futuro da saúde pública?

@@ -15,7 +15,7 @@ Python não substitui o conhecimento clínico, epidemiológico ou econômico: el
 ## Estratégia para evitar imprevistos
 
 - executar todos os notebooks antes da oficina;
-- manter a base demo local;
+- manter os agregados oficiais (SINAN 2024, população, renda e saneamento do Censo 2022) já salvos em `data/processed/`;
 - não depender de internet ao vivo;
 - levar HTMLs exportados como contingência;
 - enfatizar que clusters são apoio exploratório, não diagnóstico nem recomendação clínica.

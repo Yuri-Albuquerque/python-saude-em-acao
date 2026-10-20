@@ -18,13 +18,16 @@ import requests
 ROOT=Path(__file__).resolve().parents[1]
 OUT=ROOT/"data"/"processed"
 
-def primeira_coluna(df, candidatos):
+def primeira_coluna(df, candidatos, obrigatorio=True):
     mapa={c.upper():c for c in df.columns}
     for nome in candidatos:
         if nome in mapa: return mapa[nome]
-    raise KeyError(f"Nenhuma das colunas {candidatos} foi encontrada. Disponíveis: {list(df.columns)}")
+    if obrigatorio:
+        raise KeyError(f"Nenhuma das colunas {candidatos} foi encontrada. Disponíveis: {list(df.columns)}")
+    return None
 
 def municipios_ibge():
+    # origem dos dados: API do IBGE (https://servicodados.ibge.gov.br/api/v1/localidades/)
     url="https://servicodados.ibge.gov.br/api/v1/localidades/estados/52/municipios"
     r=requests.get(url,timeout=60); r.raise_for_status()
     m=pd.DataFrame({"codigo_ibge":[str(x["id"]) for x in r.json()],"municipio":[x["nome"] for x in r.json()]})
@@ -53,12 +56,15 @@ def main():
         bag, origem_usada=obter_com_fallback(a.ano,a.origem,download=False)
         print(f"Origem: {origem_usada}"); print(bag); return
     df, origem_usada=obter_com_fallback(a.ano,a.origem,download=True)
-    col_mun=primeira_coluna(df,["ID_MN_RESI","CO_MUN_RES","ID_MUNICIP"])
-    col_data=primeira_coluna(df,["DT_SIN_PRI","DT_NOTIFIC"])
+    col_mun=primeira_coluna(df,["ID_MN_RESI","CO_MUN_RES","ID_MUNICIP","COD_MUN_LPI"])
+    col_data=primeira_coluna(df,["DT_SIN_PRI","DT_NOTIFIC","DT_IS"])
     cod=df[col_mun].astype("string").str.replace(r"\.0$","",regex=True).str.zfill(6).str[:6]
     datas=pd.to_datetime(df[col_data],errors="coerce",dayfirst=True)
     base=pd.DataFrame({"codigo_sinan":cod,"data":datas}).dropna()
     base=base[base.codigo_sinan.str.startswith("52")].copy()
+    if len(base)<1000:
+        raise RuntimeError(f"Extração implausível ({len(base)} notificações de Goiás): a origem '{origem_usada}' "
+                           f"retorna uma amostra esparsa. Use --origem ftp (parquet oficial do SINAN).")
     base["semana"]=base.data.dt.to_period("W-SAT").dt.start_time
     nomes=municipios_ibge()
     semanal=(base.groupby(["codigo_sinan","semana"],as_index=False).size().rename(columns={"size":"casos"}).merge(nomes,on="codigo_sinan",how="left"))

@@ -1,12 +1,12 @@
 # Python em Ação: da Epidemia ao Planejamento em Saúde
 
-**Uma investigação visual com dados de dengue, população e renda**
+**Investigação visual com dados de dengue, população, renda e saneamento**
 
-Microcurso de 2 horas para a **Semana Acadêmica de Saúde e Desenvolvimento — UEG Itumbiara**, voltado a estudantes e docentes de Medicina e Economia.
+Microcurso de 2 horas para a **V Semana Acadêmica de Saúde e Desenvolvimento (V SEASD) — UEG Itumbiara**, voltado a estudantes e docentes da área da Saúde e Economia.
 
-> O objetivo não é ensinar toda a linguagem Python. É mostrar como Python transforma dados públicos em evidências para vigilância epidemiológica, gestão e planejamento.
+> O objetivo: Mostrar como Python transforma dados públicos em evidências para vigilância epidemiológica, gestão e planejamento.
 
-## Pergunta condutora
+## Motivação
 
 **Como identificar onde e quando a dengue pressiona mais o sistema de saúde — e como população e vulnerabilidade socioeconômica mudam a interpretação dos números?**
 
@@ -14,10 +14,10 @@ Microcurso de 2 horas para a **Semana Acadêmica de Saúde e Desenvolvimento —
 
 | Tempo | Etapa | Notebook | Produto visual |
 |---:|---|---|---|
-| 0–15 min | Python, Jupyter e pergunta de gestão | `00_abertura.ipynb` | DataFrame e série temporal |
+| 0–15 min | Python, Jupyter | `00_abertura.ipynb` | DataFrame e série temporal |
 | 15–45 min | Curva epidemiológica e surto | `01_curva_epidemiologica.ipynb` | média móvel e sinal de alerta |
 | 45–80 min | Território, população e incidência | `02_territorio_e_incidencia.ipynb` | ranking e mapa interativo |
-| 80–110 min | Renda, vulnerabilidade e prioridade | `03_vulnerabilidade_e_gestao.ipynb` | correlação, clusters e painel |
+| 80–110 min | Renda, vulnerabilidade e prioridade | `03_vulnerabilidade_e_gestao.ipynb` | dispersão interativa, clusters e painel |
 | 110–120 min | Síntese | todos | recomendações e limitações |
 
 ## Instalação
@@ -28,35 +28,39 @@ cd python-saude-em-acao
 python -m venv .venv
 source .venv/bin/activate  # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
-python scripts/gerar_dados_demo.py
-jupyter lab
 ```
 
 Também é possível usar `conda env create -f environment.yml`.
 
-## Preparação dos dados oficiais
+## Preparação dos dados (100% oficiais)
 
-A oficina permanece funcional offline com a base demo. Para preparar dados oficiais agregados:
+A oficina usa exclusivamente dados públicos: SINAN/DATASUS e IBGE/Censo 2022. Para reproduzir os agregados em `data/processed/`:
 
 ```bash
-# conferir disponibilidade sem baixar
-python scripts/baixar_sinan_dengue.py --ano 2024 --origem auto --listar
+# 1) notificações de dengue: série semanal municipal de Goiás (parquet oficial do SINAN)
+python scripts/baixar_sinan_dengue.py --ano 2024 --origem ftp
 
-# baixar notificações e gerar série semanal municipal de Goiás
-python scripts/baixar_sinan_dengue.py --ano 2024 --origem auto
-
-# obter denominadores populacionais e preparar cadastro municipal
+# 2) população IBGE e cadastro municipal
 python scripts/baixar_ibge_populacao.py --periodo 2024
 python scripts/preparar_municipios.py
+
+# 3) indicadores do Censo 2022 (SIDRA) e índice de vulnerabilidade composto
+python scripts/baixar_ibge_renda.py
+
+# 4) executar os notebooks ponta a ponta
+jupyter lab
 ```
 
-O modo `auto` tenta OpenDataSUS e recorre ao catálogo FTP quando necessário; também é possível fixar `--origem saude` ou `--origem ftp`. Consulte `FONTES_E_METODOLOGIA.md` e `CHECKLIST_DADOS.md` antes de interpretar os resultados.
+O script do SINAN valida a extração e recusa amostras esparsas (a origem `saude` do OpenDataSUS devolve uma amostra não representativa para Goiás; use `--origem ftp`). Sem os agregados, os notebooks interrompem com a instrução de download.
+
+## Índice de vulnerabilidade
+
+Composto por quatro componentes min–max (25% cada), todos do Censo 2022 via API SIDRA: renda domiciliar per capita (tabela 10295), % de domicílios com água da rede geral (t6803), % com esgoto ligado à rede (t6805) e % com lixo coletado (t6892). A fórmula, as fontes e um exemplo computado (Águas Lindas de Goiás, que passa de 0,89 no índice só-renda para 0,35 no multidimensional) estão no notebook 03 e em `data/raw/metadados_ibge_renda.json`.
 
 ## Estrutura
 
 ```text
 notebooks/        narrativa da oficina em quatro atos
-data/demo/        base sintética reproduzível
 data/raw/         extrações oficiais locais, não versionadas
 data/processed/   agregados municipais prontos para análise
 scripts/          download, validação, agregação e carregamento
@@ -69,7 +73,7 @@ GUIA_DOCENTE.md   minutagem, mensagens e contingência
 
 ## Dados e ética
 
-A base de contingência é **sintética, agregada e identificada como demonstração**. O fluxo oficial usa SINAN/DATASUS para notificações e IBGE/SIDRA para população. Nenhum registro individual deve ser versionado. Resultados agregados não demonstram causalidade nem orientam decisões clínicas individuais.
+Todas as fontes são oficiais e agregadas: SINAN/DATASUS para notificações, IBGE/SIDRA para população, renda e saneamento. Nenhum registro individual é exportado ou versionado. Resultados agregados não demonstram causalidade nem orientam decisões clínicas individuais.
 
 ## Fluxo apresentado
 
@@ -77,4 +81,4 @@ A base de contingência é **sintética, agregada e identificada como demonstra�
 
 ## Situação do projeto
 
-A infraestrutura para extração e rastreabilidade de dados oficiais está implementada. A renda oficial e a execução integral/exportação HTML dos notebooks constituem as próximas etapas.
+Pipeline oficial completo e validado: os quatro notebooks executam ponta a ponta com SINAN/DATASUS 2024 (334.555 notificações, 246 municípios), população IBGE e indicadores do Censo 2022, com vulnerabilidade multidimensional auditável e gráficos interativos (Plotly) embutidos e exportados em HTML. Próxima etapa pendente: exportação HTML dos próprios notebooks.

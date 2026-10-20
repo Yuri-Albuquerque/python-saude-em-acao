@@ -1,0 +1,11 @@
+{
+  "fonte": "SINAN/DATASUS via PySUS",
+  "origem_pysus": "ftp",
+  "ano": 2025,
+  "acesso_utc": "2026-10-20T23:03:35.368620+00:00",
+  "linhas_originais": 1643215,
+  "notificacoes_goias_validas": 105673,
+  "municipios": 246,
+  "coluna_municipio": "ID_MN_RESI",
+  "coluna_data": "DT_SIN_PRI"
+}
