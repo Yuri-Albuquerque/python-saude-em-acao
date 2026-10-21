@@ -52,6 +52,7 @@ def minmax(s,invert=False):
     return 1-v if invert else v
 
 def main():
+    # 1. Obtaining the raw data from the IBGE SIDRA API
     renda=renda_municipios()
     tot_agua=sidra(6803).rename("dom_agua_total")
     rede_agua=sidra(6803,cls=1821,cat=72144).rename("dom_agua_rede")
@@ -60,24 +61,28 @@ def main():
     tot_lixo=sidra(6892).rename("dom_lixo_total")
     col_lixo=sidra(6892,cls=67,cat=2520).rename("dom_lixo_coletado")
 
+    # 1.5. Reading the list of municipalities in Goiás
     mun=pd.read_csv(OUT/"municipios_goias.csv",dtype={"codigo_ibge":"string"})
     mun["codigo_ibge"]=mun.codigo_ibge.str.zfill(7)
+    # 1.6. Cleaning up previously calculated indicators from the municipality list
     limpar=["renda_pc","vulnerabilidade","pct_agua_rede","pct_esgoto_rede","pct_lixo_coletado",
             "dom_agua_total","dom_agua_rede","dom_esgoto_total","dom_esgoto_rede","dom_lixo_total","dom_lixo_coletado"]
     mun=mun.drop(columns=[c for c in limpar if c in mun.columns])
-
+    # 1.7. Merging the raw data with the cleaned municipality list
     comp=pd.concat([renda,tot_agua,rede_agua,tot_esg,rede_esg,tot_lixo,col_lixo],axis=1).reset_index()
     mun=mun.merge(comp,on="codigo_ibge",how="left")
-
+    # 1.8. Calculating the percentages of households with access to services
     mun["pct_agua_rede"]=100*mun.dom_agua_rede/mun.dom_agua_total
     mun["pct_esgoto_rede"]=100*mun.dom_esgoto_rede/mun.dom_esgoto_total
     mun["pct_lixo_coletado"]=100*mun.dom_lixo_coletado/mun.dom_lixo_total
 
+    # 2. Calculating the vulnerability index based on the obtained data
     mun["vulnerabilidade"]=pd.concat([minmax(mun.renda_pc,invert=True),
                                       minmax(mun.pct_agua_rede,invert=True),
                                       minmax(mun.pct_esgoto_rede,invert=True),
                                       minmax(mun.pct_lixo_coletado,invert=True)],axis=1).mean(axis=1).round(4)
 
+    # 3. Saving the processed data and metadata
     mun.to_csv(OUT/"municipios_goias.csv",index=False)
     meta={
         "fonte":"IBGE, Censo Demográfico 2022 (API SIDRA)",
@@ -89,6 +94,8 @@ def main():
         "vulnerabilidade":"média de 4 componentes min-max: renda (invertida), % sem água de rede, % sem esgoto de rede, % sem lixo coletado",
         "municipios_com_indicador":int(mun.vulnerabilidade.notna().sum())}
     (ROOT/"data"/"raw"/"metadados_ibge_renda.json").write_text(json.dumps(meta,ensure_ascii=False,indent=2),encoding="utf-8")
+
+    # 4. Displaying a preview of the processed data and confirmation of the saved file
     print(mun[["municipio","renda_pc","pct_agua_rede","pct_esgoto_rede","pct_lixo_coletado","vulnerabilidade"]].head(8))
     print(f"Gravado: {OUT/'municipios_goias.csv'}")
 

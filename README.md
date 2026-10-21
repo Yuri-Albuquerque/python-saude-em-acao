@@ -38,7 +38,9 @@ A oficina usa exclusivamente dados públicos: SINAN/DATASUS e IBGE/Censo 2022. P
 
 ```bash
 # 1) notificações de dengue: série semanal municipal de Goiás (parquet oficial do SINAN)
+#    um arquivo por ano: data/processed/dengue_semanal_goias_<ano>.csv
 python scripts/baixar_sinan_dengue.py --ano 2024 --origem ftp
+python scripts/baixar_sinan_dengue.py --ano 2025 --origem ftp
 
 # 2) população IBGE e cadastro municipal
 python scripts/baixar_ibge_populacao.py --periodo 2024

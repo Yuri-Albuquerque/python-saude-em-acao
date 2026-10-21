@@ -43,11 +43,15 @@ def coordenadas_ibge():
     return df
 
 def main():
+    # 1. Reading the official population data and obtaining coordinates from the IBGE API
     pop=pd.read_csv(raw/"populacao_goias_ibge.csv",dtype={"codigo_ibge":"string"})
     pop["codigo_ibge"]=pop.codigo_ibge.str.zfill(7)
+    # 1.5. Obtaining the coordinates from the IBGE API
     coords=coordenadas_ibge()
     coords["codigo_ibge"]=coords.codigo_ibge.astype(str).str.zfill(7)
+    # 1.6. Merging the population data with the obtained coordinates
     pop=pop.drop(columns=[c for c in ["latitude","longitude"] if c in pop.columns]).merge(coords,on="codigo_ibge",how="left")
+    # 2. Saving the combined data and displaying a summary
     pop.to_csv(out/"municipios_goias.csv",index=False)
     print(f"{len(pop)} municípios gravados; com coordenada: {int(pop[['latitude','longitude']].notna().all(axis=1).sum())}")
 

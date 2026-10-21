@@ -28,7 +28,7 @@ Todos os indicadores abaixo são por município goiano e entram no `municipios_g
 
 ## Reprodutibilidade
 
-Cada extração oficial gera um arquivo de metadados com ano, origem, data/hora de acesso, número de registros, colunas escolhidas e municípios encontrados (`data/processed/metadados_sinan.json`, `data/raw/metadados_ibge_renda.json`, `data/raw/metadados_ibge_populacao.json`). Arquivos individuais não são versionados. Somente agregados sem identificação poderão ser incluídos para a oficina. O projeto não usa dados sintéticos em nenhum ponto.
+Cada extração oficial gera um arquivo de metadados com ano, origem, data/hora de acesso, número de registros, colunas escolhidas e municípios encontrados (`data/processed/metadados_sinan_<ano>.json`, `data/raw/metadados_ibge_renda.json`, `data/raw/metadados_ibge_populacao.json`). Arquivos individuais não são versionados. Somente agregados sem identificação poderão ser incluídos para a oficina. O projeto não usa dados sintéticos em nenhum ponto.
 
 ## Limitações
 

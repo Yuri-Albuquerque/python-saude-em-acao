@@ -50,11 +50,15 @@ def obter_com_fallback(ano, origem, download=True):
         return obter(ano,"ftp",download), "ftp"
 
 def main():
+    # 1. Parsing command-line arguments
     p=argparse.ArgumentParser(); p.add_argument("--ano",type=int,required=True); p.add_argument("--origem",choices=["auto","saude","ftp"],default="auto"); p.add_argument("--listar",action="store_true")
     a=p.parse_args()
+    
     if a.listar:
         bag, origem_usada=obter_com_fallback(a.ano,a.origem,download=False)
         print(f"Origem: {origem_usada}"); print(bag); return
+    
+    # 2. Obtaining the data with fallback mechanism
     df, origem_usada=obter_com_fallback(a.ano,a.origem,download=True)
     col_mun=primeira_coluna(df,["ID_MN_RESI","CO_MUN_RES","ID_MUNICIP","COD_MUN_LPI"])
     col_data=primeira_coluna(df,["DT_SIN_PRI","DT_NOTIFIC","DT_IS"])
@@ -62,16 +66,25 @@ def main():
     datas=pd.to_datetime(df[col_data],errors="coerce",dayfirst=True)
     base=pd.DataFrame({"codigo_sinan":cod,"data":datas}).dropna()
     base=base[base.codigo_sinan.str.startswith("52")].copy()
+
+    # 3. Validating the extracted data
     if len(base)<1000:
         raise RuntimeError(f"Extração implausível ({len(base)} notificações de Goiás): a origem '{origem_usada}' "
                            f"retorna uma amostra esparsa. Use --origem ftp (parquet oficial do SINAN).")
+
+    # 4. Aggregating the data by week and municipality
     base["semana"]=base.data.dt.to_period("W-SAT").dt.start_time
     nomes=municipios_ibge()
     semanal=(base.groupby(["codigo_sinan","semana"],as_index=False).size().rename(columns={"size":"casos"}).merge(nomes,on="codigo_sinan",how="left"))
     semanal=semanal[["codigo_ibge","municipio","semana","casos"]].sort_values(["municipio","semana"])
+
+    # 5. Saving the aggregated data and metadata
     OUT.mkdir(parents=True,exist_ok=True)
-    semanal.to_csv(OUT/"dengue_semanal_goias.csv",index=False)
+    semanal.to_csv(OUT/f"dengue_semanal_goias_{a.ano}.csv",index=False)
     meta={"fonte":"SINAN/DATASUS via PySUS","origem_pysus":origem_usada,"ano":a.ano,"acesso_utc":datetime.now(timezone.utc).isoformat(),"linhas_originais":len(df),"notificacoes_goias_validas":len(base),"municipios":int(semanal.municipio.nunique()),"coluna_municipio":col_mun,"coluna_data":col_data}
-    (OUT/"metadados_sinan.json").write_text(json.dumps(meta,ensure_ascii=False,indent=2),encoding="utf-8")
+    (OUT/f"metadados_sinan_{a.ano}.json").write_text(json.dumps(meta,ensure_ascii=False,indent=2),encoding="utf-8")
+    
+    # 6. Displaying a preview of the aggregated data and metadata
     print(semanal.head()); print(json.dumps(meta,ensure_ascii=False,indent=2))
+
 if __name__=="__main__": main()
